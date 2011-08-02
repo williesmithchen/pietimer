@@ -8,7 +8,14 @@ The pietimer canvas element will be injected *into* the specified element.
 
 
 
-$('#element').pietimer(); // Will place pietimer inside #element
+var pieTimer = $('#element').pietimer(); // Will place pietimer inside #element
+pieTimer.start();
+
+At any point you can pause it.
+pieTimer.pause();
+
+And restart it.
+pieTimer.start();
 
 
 
