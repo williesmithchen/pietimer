@@ -1,46 +1,58 @@
 (function($) {
+    var val = 360;
+    var methods = {
+        init: function(options, callback) {
+            var $this = $(this);
+            var settings = {
+                'seconds': 10,
+                'colour': 'rgba(255, 255, 255, 0.8)',
+                'height': $this.height(),
+                'width': $this.width()
+            };
+            if (options) {
+                $.extend(settings, options);
+            }
+            var $this = $(this);
+            methods.data.settings = settings;
+            methods.data.instance = $this;
+            methods.data.interval = null;
+            methods.data.val = 360;
+            methods.data.callback = callback;
+            methods.data.paused = true;
+            $this.html('<canvas id="pie_timer" width="' + settings.height + '" height="' + settings.height + '"></canvas>');
+        },
+        start: function() {
+            if (methods.data.paused) {
+                if (val <= 0) {
+                    val = 360;
+                }
+                methods.data.interval = setInterval(methods.timer, 40);
+                methods.data.paused = false;
+            }
 
-    jQuery.fn.pietimer = function(options, callback) {
+        },
+        pause: function() {
+            if (!methods.data.paused) {
+                clearInterval(methods.data.interval);
+                methods.data.paused = true;
+            }
 
-        var settings = {
-            'seconds': 10,
-            'colour': 'rgba(255, 255, 255, 0.8)',
-            'height': this.height(),
-            'width': this.width()
-        };
-        this.counter = 0;
-        this.paused = false;
-        if (options) {
-            $.extend(settings, options);
-        }
-
-        this.html('<canvas id="pie_timer" width="' + settings.height + '" height="' + settings.height + '"></canvas>');
-        self = this;
-
-        this.start = function() {
-            self.interval = setInterval(self.timer, 40);
-        };
-
-        this.pause = function() {
-            clearInterval(this.interval);
-        };
-
-        var val = 360;
-        this.timer = function() {
-
+        },
+        timer: function() {
             var canvas = document.getElementById('pie_timer');
-
+            var callback = methods.data.callback;
             if (canvas.getContext) {
 
-                val -= ( 360 / settings.seconds ) / 24;
+                val -= ( 360 / methods.data.settings.seconds ) / 24;
 
                 if (val <= 0) {
 
-                    clearInterval(self.interval);
+                    clearInterval(methods.data.interval);
                     canvas.width = canvas.width;
                     if (typeof callback == 'function') {
                         callback.call();
                     }
+                    methods.data.paused = true;
 
                 } else {
 
@@ -65,14 +77,37 @@
                     );
 
                     ctx.closePath();
-                    ctx.fillStyle = settings.colour;
+                    ctx.fillStyle = methods.data.settings.colour;
                     ctx.fill();
 
                 }
 
             }
+        },
+        data: {}
+    };
 
-        };
+    jQuery.fn.pietimer = function(method) {
+
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || ! method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.tooltip');
+        }
+
+
+//        this.start = function() {
+//            self.interval = setInterval(self.timer, 40);
+//        };
+//
+//        this.pause = function() {
+//            clearInterval(this.interval);
+//        };
+
+//        var val = 360;
+
 
         return this;
 
