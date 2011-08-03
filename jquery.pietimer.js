@@ -96,21 +96,8 @@
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.tooltip');
         }
-
-
-//        this.start = function() {
-//            self.interval = setInterval(self.timer, 40);
-//        };
-//
-//        this.pause = function() {
-//            clearInterval(this.interval);
-//        };
-
-//        var val = 360;
-
-
+        
         return this;
-
     };
 
 })(jQuery);
