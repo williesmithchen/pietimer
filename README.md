@@ -36,4 +36,4 @@ Don't forget to pass some options and a callback!
 
 height and width will be inherited from the parent element and so are optional.
 
-colour will accept any value that the canvas element accepts including hex values like ffffff
+colour will accept any value that the canvas element accepts including hex values like #ffffff
