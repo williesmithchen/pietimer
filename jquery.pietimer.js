@@ -5,7 +5,7 @@
             var $this = $(this);
             var settings = {
                 'seconds': 10,
-                'colour': 'rgba(255, 255, 255, 0.8)',
+                'color': 'rgba(255, 255, 255, 0.8)',
                 'height': $this.height(),
                 'width': $this.width()
             };
@@ -77,7 +77,7 @@
                     );
 
                     ctx.closePath();
-                    ctx.fillStyle = methods.data.settings.colour;
+                    ctx.fillStyle = methods.data.settings.color;
                     ctx.fill();
 
                 }
