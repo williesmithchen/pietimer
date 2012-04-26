@@ -2,6 +2,8 @@
 
 Pietimer injects a canvas element into the page which has an ever reducing pie shaped timer. Once the timer is complete a callback function is performed.
 
+Checkout <http://www.northfieldx.co.uk/pietimer> for a demo
+
 
 ##Usage
 
