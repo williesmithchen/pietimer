@@ -27,7 +27,7 @@ Don't forget to pass some options and a callback!
 
 	$('#element').pietimer({
 		seconds: 5,
-		colour: 'rgba(255, 255, 255, 0.8)',
+		color: 'rgba(255, 255, 255, 0.8)',
 		height: 40,
 		width: 40
 	},
@@ -38,4 +38,4 @@ Don't forget to pass some options and a callback!
 
 height and width will be inherited from the parent element and so are optional.
 
-colour will accept any value that the canvas element accepts including hex values like #ffffff
+color will accept any value that the canvas element accepts including hex values like #ffffff
