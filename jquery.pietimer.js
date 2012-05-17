@@ -30,17 +30,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var val = 360;
     var methods = {
         init: function(options, callback) {
-            var $this = $(this);
-            var settings = {
-                'seconds': 10,
-                'color': 'rgba(255, 255, 255, 0.8)',
-                'height': $this.height(),
-                'width': $this.width()
-            };
+            var $this = $(this),
+				settings = {
+	                'seconds': 10,
+	                'color': 'rgba(255, 255, 255, 0.8)',
+	                'height': $this.height(),
+	                'width': $this.width()
+	            };
             if (options) {
                 $.extend(settings, options);
             }
-            var $this = $(this);
             methods.data.settings = settings;
             methods.data.instance = $this;
             methods.data.interval = null;
