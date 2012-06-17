@@ -6,14 +6,14 @@ Modified BSD License
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
-	* Redistributions of source code must retain the above copyright
-	  notice, this list of conditions and the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright
-	  notice, this list of conditions and the following disclaimer in the
-	  documentation and/or other materials provided with the distribution.
-	* Neither the name of the <organization> nor the
-	  names of its contributors may be used to endorse or promote products
-	  derived from this software without specific prior written permission.
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the <organization> nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -26,105 +26,150 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-(function($) {
-	var val = 360;
-	var methods = {
-		init: function(options, callback) {
-			var $this = $(this),
-			settings = {
-				'seconds': 10,
-				'color': 'rgba(255, 255, 255, 0.8)',
-				'height': $this.height(),
-				'width': $this.width()
-			};
-			if (options) {
-				$.extend(settings, options);
-			}
-			methods.data.settings = settings;
-			methods.data.instance = $this;
-			methods.data.interval = null;
-			methods.data.val = 360;
-			methods.data.callback = callback;
-			methods.data.paused = true;
-			$this.html('<canvas id="pie_timer" width="' + settings.height + '" height="' + settings.height + '"></canvas>');
-		},
-		start: function() {
-			if (methods.data.paused) {
-				if (val <= 0) {
-					val = 360;
-				}
-				methods.data.interval = setInterval(methods.timer, 40);
-				methods.data.paused = false;
-			}
+(function ($) {
+    'use strict';
+    
+    var DEFAULT_VALUE = 360;
+    
+    var DEFAULT_SETTINGS = {
+        seconds: 10,
+        color: 'rgba(255, 255, 255, 0.8)',
+        height: null,
+        width: null
+    };
 
-		},
-		pause: function() {
-			if (!methods.data.paused) {
-				clearInterval(methods.data.interval);
-				methods.data.paused = true;
-			}
+    // Internal constants
+    var PIE_TIMER_INTERVAL = 40;
+    
+    var TIMER_CSS_CLASS = 'pie_timer';
+    
+    var PIE_TIMER_DATA_NAME = 'pie_timer';
+    
+    // Math constants
+    var THREE_PI_BY_TWO = 3 * Math.PI / 2;
+    
+    var PI_BY_180 = Math.PI / 180;
+    
+    var PieTimer = function (jquery_object, settings, callback) {
+        if (settings.width === null) {
+            settings.width = jquery_object.width();
+        }
+        if (settings.height === null) {
+            settings.height = jquery_object.height();
+        }
+        
+        this.settings = settings;
+        this.jquery_object = jquery_object;
+        this.interval_id = null;
+        this.current_value = DEFAULT_VALUE;
+        this.callback = callback;
+        this.is_paused = true;
+        this.jquery_object.html('<canvas class="' + TIMER_CSS_CLASS + '" width="' + settings.width + '" height="' + settings.height + '"></canvas>');
+        this.canvas = this.jquery_object.children('.' + TIMER_CSS_CLASS)[0];
+    };
+    
+    PieTimer.prototype = {
+        start: function () {
+            if (this.is_paused) {
+                if (this.current_value <= 0) {
+                    this.current_value = DEFAULT_VALUE;
+                }
+                this.interval_id = setInterval($.proxy(this.run_timer, this), PIE_TIMER_INTERVAL);
+                this.is_paused = false;
+            }
+        },
+        
+        pause: function () {
+            if (!this.is_paused) {
+                clearInterval(this.interval_id);
+                this.is_paused = true;
+            }
+        },
 
-		},
-		timer: function() {
-			var canvas = document.getElementById('pie_timer');
-			var callback = methods.data.callback;
-			if (canvas.getContext) {
+        run_timer: function () {
+            if (this.canvas.getContext) {
 
-				val -= ( 360 / methods.data.settings.seconds ) / 24;
+                this.current_value -= (DEFAULT_VALUE / this.settings.seconds) / 24;
 
-				if (val <= 0) {
+                if (this.current_value <= 0) {
+                    clearInterval(this.interval_id);
+                    
+                    // This is a total hack to clear the canvas. It would be 
+                    // better to fill the canvas with the background color
+                    this.canvas.width = this.settings.width;
+                    
+                    if ($.isFunction(this.callback)) {
+                        this.callback.call();
+                    }
+                    this.is_paused = true;
 
-					clearInterval(methods.data.interval);
-					canvas.width = canvas.width;
-					if (typeof callback == 'function') {
-						callback.call();
-					}
-					methods.data.paused = true;
+                } else {
+                    // This is a total hack to clear the canvas. It would be 
+                    // better to fill the canvas with the background color
+                    this.canvas.width = this.settings.width;
 
-				} else {
+                    var ctx = this.canvas.getContext('2d');
 
-					canvas.width = canvas.width;
+                    var canvas_size = [this.canvas.width, this.canvas.height];
+                    var radius = Math.min(canvas_size[0], canvas_size[1]) / 2;
+                    var center = [canvas_size[0] / 2, canvas_size[1] / 2];
 
-					var ctx = canvas.getContext('2d');
+                    ctx.beginPath();
+                    ctx.moveTo(center[0], center[1]);
+                    var start = THREE_PI_BY_TWO;
+                    ctx.arc(
+                        center[0],
+                        center[1],
+                        radius,
+                        start - this.current_value * PI_BY_180,
+                        start,
+                        false
+                    );
 
-					var canvas_size = [canvas.width, canvas.height];
-					var radius = Math.min(canvas_size[0], canvas_size[1]) / 2;
-					var center = [canvas_size[0] / 2, canvas_size[1] / 2];
+                    ctx.closePath();
+                    ctx.fillStyle = this.settings.color;
+                    ctx.fill();
 
-					ctx.beginPath();
-					ctx.moveTo(center[0], center[1]);
-					var start = ( 3 * Math.PI ) / 2;
-					ctx.arc(
-						center[0],
-						center[1],
-						radius,
-						start - val * ( Math.PI / 180 ),
-						start,
-						false
-					);
+                }
+            }
+        }
+    };
+    
+    var create_timer = function (options, callback) {
+        var settings = $.extend({}, DEFAULT_SETTINGS, options);
+        
+        return this.each(function () {
+            var $element = $(this);
+            var pie_timer = new PieTimer($element, settings, callback);
+            $element.data(PIE_TIMER_DATA_NAME, pie_timer);
+        });
+    };
+    
+    var call_timer_method = function (method_name) {
+        if (!(method_name in PieTimer.prototype)) {
+            $.error('Method ' + method_name + ' does not exist on jQuery.pietimer');
+        }
+        var sliced_arguments = Array.prototype.slice.call(arguments, 1);
+        
+        return this.each(function () {
+            var $element = $(this);
+            var pie_timer = $element.data(PIE_TIMER_DATA_NAME);
+            
+            if (!pie_timer) {
+                // This element hasn't had pie timer constructed yet, so skip it
+                return true;
+            }
+            pie_timer[method_name].apply(pie_timer, sliced_arguments);
+        });
+    };
 
-					ctx.closePath();
-					ctx.fillStyle = methods.data.settings.color;
-					ctx.fill();
-
-				}
-
-			}
-		},
-		data: {}
-	};
-
-	jQuery.fn.pietimer = function(method) {
-
-		if (methods[method]) {
-			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-		} else if (typeof method === 'object' || ! method) {
-			return methods.init.apply(this, arguments);
-		} else {
-			$.error('Method ' + method + ' does not exist on jQuery.pietimer');
-		}
-
-		return this;
-	};
+    $.fn.pietimer = function (method) {
+        
+        if (typeof method === 'object' || ! method) {
+            return create_timer.apply(this, arguments);
+        } else {
+            return call_timer_method.apply(this, arguments);
+        }
+    };
 
 })(jQuery);
