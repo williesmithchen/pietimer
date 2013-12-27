@@ -1,5 +1,5 @@
-/*
-Copyright (c) 2012, Northfield X Ltd
+/**
+ * @preserve Copyright (c) 2012, Northfield X Ltd
 All rights reserved.
 
 Modified BSD License
@@ -64,6 +64,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         this.current_value = DEFAULT_VALUE;
         this.callback = callback;
         this.is_paused = true;
+				this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
         this.jquery_object.html('<canvas class="' + TIMER_CSS_CLASS + '" width="' + settings.width + '" height="' + settings.height + '"></canvas>');
         this.canvas = this.jquery_object.children('.' + TIMER_CSS_CLASS)[0];
     };
@@ -113,6 +114,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     var canvas_size = [this.canvas.width, this.canvas.height];
                     var radius = Math.min(canvas_size[0], canvas_size[1]) / 2;
                     var center = [canvas_size[0] / 2, canvas_size[1] / 2];
+										var isReversed = this.is_reversed;
 
                     ctx.beginPath();
                     ctx.moveTo(center[0], center[1]);
@@ -121,9 +123,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         center[0],
                         center[1],
                         radius,
-                        start - this.current_value * PI_BY_180,
-                        start,
-                        false
+												isReversed
+														? start - (360 - this.current_value) * PI_BY_180
+														: start - this.current_value * PI_BY_180,
+												start,
+												isReversed
                     );
 
                     ctx.closePath();
