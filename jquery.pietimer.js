@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         this.jquery_object = jquery_object;
         this.interval_id = null;
         this.current_value = DEFAULT_VALUE;
+				this.initial_time = new Date();
         this.callback = callback;
         this.is_paused = true;
 				this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
@@ -90,7 +91,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         run_timer: function () {
             if (this.canvas.getContext) {
 
-                this.current_value -= (DEFAULT_VALUE / this.settings.seconds) / 24;
+							this.elapsed_time = (new Date() - this.initial_time) / 1000;
+							this.current_value = DEFAULT_VALUE * Math.max(0, this.settings.seconds - this.elapsed_time) / this.settings.seconds;
 
                 if (this.current_value <= 0) {
                     clearInterval(this.interval_id);
