@@ -63,6 +63,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         this.interval_id = null;
         this.current_value = DEFAULT_VALUE;
 				this.initial_time = new Date();
+				this.accrued_time = 0;
         this.callback = callback;
         this.is_paused = true;
 				this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
@@ -73,6 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     PieTimer.prototype = {
         start: function () {
             if (this.is_paused) {
+							this.initial_time = new Date()  - this.accrued_time;
                 if (this.current_value <= 0) {
                     this.current_value = DEFAULT_VALUE;
                 }
@@ -83,6 +85,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         
         pause: function () {
             if (!this.is_paused) {
+							this.accrued_time = (new Date() - this.initial_time);
                 clearInterval(this.interval_id);
                 this.is_paused = true;
             }
