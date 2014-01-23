@@ -28,28 +28,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 (function ($) {
     'use strict';
-    
+
     var DEFAULT_VALUE = 360;
-    
+
     var DEFAULT_SETTINGS = {
         seconds: 10,
         color: 'rgba(255, 255, 255, 0.8)',
         height: null,
-        width: null
+        width: null,
+        elementID: null
     };
 
     // Internal constants
     var PIE_TIMER_INTERVAL = 40;
-    
+
     var TIMER_CSS_CLASS = 'pie_timer';
-    
+
     var PIE_TIMER_DATA_NAME = 'pie_timer';
-    
+
     // Math constants
     var THREE_PI_BY_TWO = 3 * Math.PI / 2;
-    
+
     var PI_BY_180 = Math.PI / 180;
-    
+
     var PieTimer = function (jquery_object, settings, callback) {
         if (settings.width === null) {
             settings.width = jquery_object.width();
@@ -57,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         if (settings.height === null) {
             settings.height = jquery_object.height();
         }
-        
+
         this.settings = settings;
         this.jquery_object = jquery_object;
         this.interval_id = null;
@@ -69,8 +70,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
         this.jquery_object.html('<canvas class="' + TIMER_CSS_CLASS + '" width="' + settings.width + '" height="' + settings.height + '"></canvas>');
         this.canvas = this.jquery_object.children('.' + TIMER_CSS_CLASS)[0];
+        this.pieSeconds = this.settings.seconds;
     };
-    
+
     PieTimer.prototype = {
         start: function () {
             if (this.is_paused) {
@@ -82,7 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 this.is_paused = false;
             }
         },
-        
+
         pause: function () {
             if (!this.is_paused) {
 							this.accrued_time = (new Date() - this.initial_time);
@@ -97,20 +99,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							this.elapsed_time = (new Date() - this.initial_time) / 1000;
 							this.current_value = DEFAULT_VALUE * Math.max(0, this.settings.seconds - this.elapsed_time) / this.settings.seconds;
 
+                if(this.settings.elementID){
+                    var seconds = Math.ceil(this.current_value/DEFAULT_VALUE * this.settings.seconds);
+                    if(this.pieSeconds !== seconds){
+                        this.pieSeconds = seconds;
+                        $('#'+this.settings.elementID).html(this.pieSeconds);
+                    }
+                }
+
                 if (this.current_value <= 0) {
                     clearInterval(this.interval_id);
-                    
-                    // This is a total hack to clear the canvas. It would be 
+
+                    // This is a total hack to clear the canvas. It would be
                     // better to fill the canvas with the background color
                     this.canvas.width = this.settings.width;
-                    
+
                     if ($.isFunction(this.callback)) {
                         this.callback.call();
                     }
                     this.is_paused = true;
 
                 } else {
-                    // This is a total hack to clear the canvas. It would be 
+                    // This is a total hack to clear the canvas. It would be
                     // better to fill the canvas with the background color
                     this.canvas.width = this.settings.width;
 
@@ -143,27 +153,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             }
         }
     };
-    
+
     var create_timer = function (options, callback) {
         var settings = $.extend({}, DEFAULT_SETTINGS, options);
-        
+
         return this.each(function () {
             var $element = $(this);
             var pie_timer = new PieTimer($element, settings, callback);
             $element.data(PIE_TIMER_DATA_NAME, pie_timer);
         });
     };
-    
+
     var call_timer_method = function (method_name) {
         if (!(method_name in PieTimer.prototype)) {
             $.error('Method ' + method_name + ' does not exist on jQuery.pietimer');
         }
         var sliced_arguments = Array.prototype.slice.call(arguments, 1);
-        
+
         return this.each(function () {
             var $element = $(this);
             var pie_timer = $element.data(PIE_TIMER_DATA_NAME);
-            
+
             if (!pie_timer) {
                 // This element hasn't had pie timer constructed yet, so skip it
                 return true;
@@ -173,7 +183,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     };
 
     $.fn.pietimer = function (method) {
-        
+
         if (typeof method === 'object' || ! method) {
             return create_timer.apply(this, arguments);
         } else {
