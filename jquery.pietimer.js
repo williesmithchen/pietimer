@@ -115,7 +115,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         if(this.jquery_object.find(this.settings.elementID).length !== 0) {
                             this.jquery_object.find(this.settings.elementID).text(this.pieSeconds);
                         }else{
-                            $('#'+this.settings.elementID).html(this.pieSeconds);
+                            $('#'+this.settings.elementID).text(this.pieSeconds);
                         }
                     }
                 }
