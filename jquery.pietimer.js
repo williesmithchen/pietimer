@@ -103,7 +103,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     var seconds = Math.ceil(this.current_value/DEFAULT_VALUE * this.settings.seconds);
                     if(this.pieSeconds !== seconds){
                         this.pieSeconds = seconds;
-                        $('#'+this.settings.elementID).html(this.pieSeconds);
+                        if(this.jquery_object.find(this.settings.elementID)) {
+                            this.jquery_object.find(this.settings.elementID).text(this.pieSeconds);
+                        }else{
+                            $('#'+this.settings.elementID).html(this.pieSeconds);
+                        }
                     }
                 }
 
