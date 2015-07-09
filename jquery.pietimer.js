@@ -33,6 +33,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     var DEFAULT_SETTINGS = {
         seconds: 10,
+        warning:{
+            seconds: 3,
+            classname: null
+        },
         color: 'rgba(255, 255, 255, 0.8)',
         height: null,
         width: null,
@@ -63,11 +67,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         this.jquery_object = jquery_object;
         this.interval_id = null;
         this.current_value = DEFAULT_VALUE;
-				this.initial_time = new Date();
-				this.accrued_time = 0;
+		this.initial_time = new Date();
+		this.accrued_time = 0;
         this.callback = callback;
         this.is_paused = true;
-				this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
+		this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
         this.jquery_object.html('<canvas class="' + TIMER_CSS_CLASS + '" width="' + settings.width + '" height="' + settings.height + '"></canvas>');
         this.canvas = this.jquery_object.children('.' + TIMER_CSS_CLASS)[0];
         this.pieSeconds = this.settings.seconds;
@@ -76,7 +80,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     PieTimer.prototype = {
         start: function () {
             if (this.is_paused) {
-							this.initial_time = new Date()  - this.accrued_time;
+				this.initial_time = new Date()  - this.accrued_time;
                 if (this.current_value <= 0) {
                     this.current_value = DEFAULT_VALUE;
                 }
@@ -87,7 +91,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         pause: function () {
             if (!this.is_paused) {
-							this.accrued_time = (new Date() - this.initial_time);
+                //clear warning classname when time pause
+                if(this.settings.warning.classname) {
+                    this.jquery_object.removeClass(this.settings.warning.classname);
+                }
+				this.accrued_time = (new Date() - this.initial_time);
                 clearInterval(this.interval_id);
                 this.is_paused = true;
             }
@@ -96,11 +104,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         run_timer: function () {
             if (this.canvas.getContext) {
 
-							this.elapsed_time = (new Date() - this.initial_time) / 1000;
-							this.current_value = DEFAULT_VALUE * Math.max(0, this.settings.seconds - this.elapsed_time) / this.settings.seconds;
+				this.elapsed_time = (new Date() - this.initial_time) / 1000;
+				this.current_value = DEFAULT_VALUE * Math.max(0, this.settings.seconds - this.elapsed_time) / this.settings.seconds;
+
+                var seconds = Math.ceil(this.current_value/DEFAULT_VALUE * this.settings.seconds);
 
                 if(this.settings.elementID){
-                    var seconds = Math.ceil(this.current_value/DEFAULT_VALUE * this.settings.seconds);
                     if(this.pieSeconds !== seconds){
                         this.pieSeconds = seconds;
                         if(this.jquery_object.find(this.settings.elementID).length !== 0) {
@@ -111,7 +120,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     }
                 }
 
+                if(seconds <= this.settings.warning.seconds && this.settings.warning.classname) {
+
+                    //when seconds equals warning seconds will auto the warning classname
+                    this.jquery_object.addClass(this.settings.warning.classname);
+
+                }
+
                 if (this.current_value <= 0) {
+                    //clear warning classname when time out
+                    if(this.settings.warning.classname) {
+                        this.jquery_object.removeClass(this.settings.warning.classname);
+                    }
+
+                    //clearInterval
                     clearInterval(this.interval_id);
 
                     // This is a total hack to clear the canvas. It would be
@@ -140,7 +162,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     var canvas_size = [this.canvas.width, this.canvas.height];
                     var radius = Math.min(canvas_size[0], canvas_size[1]) / 2;
                     var center = [canvas_size[0] / 2, canvas_size[1] / 2];
-										var isReversed = this.is_reversed;
+					var isReversed = this.is_reversed;
 
                     ctx.beginPath();
                     ctx.moveTo(center[0], center[1]);
@@ -149,11 +171,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         center[0],
                         center[1],
                         radius,
-												isReversed
-														? start - (360 - this.current_value) * PI_BY_180
-														: start - this.current_value * PI_BY_180,
-												start,
-												isReversed
+						isReversed
+								? start - (360 - this.current_value) * PI_BY_180
+								: start - this.current_value * PI_BY_180,
+						start,
+						isReversed
                     );
 
                     ctx.closePath();
