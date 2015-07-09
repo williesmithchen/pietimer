@@ -126,6 +126,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
                     var ctx = this.canvas.getContext('2d');
 
+                    /////////////////////////////////////////////////////
+                    //Retina Support
+                    /////////////////////////////////////////////////////
+                    this.canvas.style.width = this.settings.width + "px";
+                    this.canvas.style.height = this.settings.height+ "px";
+
+                    var deviceScale = window.devicePixelRatio || 1;
+                    this.canvas.width = this.settings.width * deviceScale;
+                    this.canvas.height = this.settings.height * deviceScale;
+                    /////////////////////////////////////////////////////
+
                     var canvas_size = [this.canvas.width, this.canvas.height];
                     var radius = Math.min(canvas_size[0], canvas_size[1]) / 2;
                     var center = [canvas_size[0] / 2, canvas_size[1] / 2];
