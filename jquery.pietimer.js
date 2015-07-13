@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2012, Northfield X Ltd
+ * @preserve Copyright (c) 2015, Northfield X Ltd
 All rights reserved.
 
 Modified BSD License
@@ -71,7 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		this.accrued_time = 0;
         this.callback = callback;
         this.is_paused = true;
-		this.is_reversed = typeof settings.is_reversed != 'undefined' ? settings.is_reversed : false;
+		this.is_reversed = typeof settings.is_reversed !== 'undefined' ? settings.is_reversed : false;
         this.jquery_object.prepend('<canvas class="' + TIMER_CSS_CLASS + '" width="' + settings.width + '" height="' + settings.height + '"></canvas>');
         this.canvas = this.jquery_object.children('.' + TIMER_CSS_CLASS)[0];
         this.pieSeconds = this.settings.seconds;
@@ -171,9 +171,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         center[0],
                         center[1],
                         radius,
-						isReversed
-								? start - (360 - this.current_value) * PI_BY_180
-								: start - this.current_value * PI_BY_180,
+						isReversed ?
+                            start - (360 - this.current_value) * PI_BY_180 :
+                            start - this.current_value * PI_BY_180,
 						start,
 						isReversed
                     );
